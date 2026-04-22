@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💗 For Poorvi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Pacifico&display=swap');
+
+:root {
+  --pink:   #ff4d8f;
+  --rose:   #ff1a6e;
+  --blush:  #ffb3d1;
+  --lilac:  #e8b4f8;
+  --cream:  #fff0f5;
+  --deep:   #1a001a;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--deep);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+/* ───── INTRO SCREEN ───── */
+#intro-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  pointer-events: none;
+}
+
+#intro-card {
+  position: relative;
+  text-align: center;
+  opacity: 0;
+  transform: scale(0.6) translateY(30px);
+  transition: opacity 1s cubic-bezier(.34,1.4,.64,1), transform 1s cubic-bezier(.34,1.4,.64,1);
+}
+#intro-card.show { opacity: 1; transform: scale(1) translateY(0); }
+#intro-card.hide { opacity: 0; transform: scale(0.85) translateY(-30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+
+#intro-line1 {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(1.4rem, 4vw, 3rem);
+  font-weight: 600;
+  color: var(--blush);
+  text-shadow: 0 0 12px rgba(255,100,180,0.8), 0 0 30px rgba(255,20,120,0.5);
+  letter-spacing: 0.03em;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+#intro-line2 {
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  color: #fff;
+  text-shadow:
+    0 0 10px #ff69b4,
+    0 0 25px #ff1493,
+    0 0 55px #ff0066;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+#intro-line3 {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(1rem, 2.5vw, 1.8rem);
+  font-weight: 500;
+  color: var(--lilac);
+  text-shadow: 0 0 10px rgba(220,150,255,0.7);
+  display: block;
+  letter-spacing: 0.08em;
+}
+
+/* sparkles around intro card */
+.sparkle {
+  position: absolute;
+  font-size: clamp(0.9rem, 1.8vw, 1.4rem);
+  animation: sparklePop 1.8s ease-in-out infinite;
+  opacity: 0;
+}
+@keyframes sparklePop {
+  0%,100% { opacity:0; transform: scale(0.5) rotate(0deg); }
+  40%,60% { opacity:1; transform: scale(1.3) rotate(20deg); }
+}
+
+/* floaty emojis - fly up from bottom */
+.floaty {
+  position: fixed;
+  font-size: clamp(1.2rem, 2.5vw, 2rem);
+  animation: riseUp linear infinite;
+  opacity: 0;
+  z-index: 25;
+  pointer-events: none;
+}
+@keyframes riseUp {
+  0%   { opacity:0; transform: translateY(0) rotate(-15deg) scale(0.8); }
+  10%  { opacity:1; }
+  85%  { opacity:0.8; }
+  100% { opacity:0; transform: translateY(-105vh) rotate(20deg) scale(1.2); }
+}
+
+/* ───── COUNTDOWN ───── */
+#countdown-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 28;
+  pointer-events: none;
+}
+
+#cd-ring {
+  position: relative;
+  width: clamp(140px, 28vw, 220px);
+  height: clamp(140px, 28vw, 220px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+#cd-ring.show { animation: ringIn 0.5s cubic-bezier(.34,1.56,.64,1) forwards; }
+#cd-ring.hide { animation: ringOut 0.4s ease forwards; }
+
+@keyframes ringIn {
+  from { opacity:0; transform: scale(0.1) rotate(-90deg); }
+  to   { opacity:1; transform: scale(1) rotate(0deg); }
+}
+@keyframes ringOut {
+  from { opacity:1; transform: scale(1); }
+  to   { opacity:0; transform: scale(1.6); }
+}
+
+#cd-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);
+}
+#cd-circle-bg {
+  fill: none;
+  stroke: rgba(255,100,180,0.15);
+  stroke-width: 4;
+}
+#cd-circle-fill {
+  fill: none;
+  stroke: url(#cdGrad);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+
+#cd-num {
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(3.5rem, 10vw, 7rem);
+  color: #fff;
+  text-shadow:
+    0 0 12px #ff69b4,
+    0 0 30px #ff1493,
+    0 0 70px #cc0055;
+  line-height: 1;
+  position: relative;
+  z-index: 2;
+}
+
+#cd-label {
+  position: absolute;
+  bottom: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(0.9rem, 2vw, 1.3rem);
+  color: var(--blush);
+  white-space: nowrap;
+  opacity: 0.85;
+  letter-spacing: 0.1em;
+}
+
+/* ───── LOVE MESSAGE ───── */
+#message {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  opacity: 0;
+  z-index: 15;
+  pointer-events: none;
+  width: 90vw;
+}
+
+#msg-main {
+  display: block;
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(2rem, 6.5vw, 5.5rem);
+  color: #fff;
+  text-shadow:
+    0 0 8px #ff6eb4,
+    0 0 20px #ff3d9a,
+    0 0 50px #ff0066,
+    0 0 90px #cc0055;
+  animation: msgPulse 2.2s ease-in-out infinite;
+  white-space: nowrap;
+}
+@keyframes msgPulse {
+  0%,100% { text-shadow: 0 0 8px #ff6eb4, 0 0 20px #ff3d9a, 0 0 50px #ff0066, 0 0 90px #cc0055; }
+  50%     { text-shadow: 0 0 12px #ffb3d1, 0 0 30px #ff69b4, 0 0 70px #ff1493, 0 0 120px #ff0066; }
+}
+
+#msg-sub {
+  display: block;
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(1.1rem, 3vw, 2.2rem);
+  font-weight: 600;
+  color: var(--blush);
+  text-shadow: 0 0 10px rgba(255,100,180,0.8);
+  margin-top: 0.5rem;
+  letter-spacing: 0.08em;
+}
+
+#msg-sub2 {
+  display: block;
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(0.85rem, 2vw, 1.4rem);
+  font-weight: 500;
+  color: var(--lilac);
+  text-shadow: 0 0 8px rgba(200,120,255,0.6);
+  margin-top: 0.3rem;
+  letter-spacing: 0.06em;
+  opacity: 0.9;
+}
+
+#message.visible {
+  animation: msgAppear 1.8s cubic-bezier(.34,1.2,.64,1) forwards;
+}
+@keyframes msgAppear {
+  from { opacity:0; transform: translate(-50%,-50%) scale(0.5); }
+  60%  { transform: translate(-50%,-50%) scale(1.05); }
+  to   { opacity:1; transform: translate(-50%,-50%) scale(1); }
+}
+
+/* tiny hearts that pop around message */
+.heart-pop {
+  position: absolute;
+  font-size: clamp(1rem, 2vw, 1.6rem);
+  animation: heartBurst 1.2s ease-out forwards;
+  opacity: 1;
+  z-index: 16;
+  pointer-events: none;
+}
+@keyframes heartBurst {
+  0%   { opacity:1; transform: scale(0) translate(0,0); }
+  60%  { opacity:1; }
+  100% { opacity:0; transform: scale(1.4) translate(var(--dx), var(--dy)); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+<canvas id="matrix-canvas"></canvas>
+<canvas id="particle-canvas"></canvas>
+
+<!-- INTRO -->
+<div id="intro-screen">
+  <div id="intro-card">
+    <span id="intro-line1">hey baabu 🌸</span>
+    <span id="intro-line2">i have a lil something for you ♡</span>
+    <span id="intro-line3">get ready in...</span>
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="countdown-wrap">
+  <div id="cd-ring">
+    <svg id="cd-svg" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="cdGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ff69b4"/>
+          <stop offset="100%" stop-color="#ff1493"/>
+        </linearGradient>
+      </defs>
+      <circle id="cd-circle-bg" cx="50" cy="50" r="44"/>
+      <circle id="cd-circle-fill" cx="50" cy="50" r="44"
+              stroke-dasharray="276.46" stroke-dashoffset="0"/>
+    </svg>
+    <span id="cd-num">3</span>
+    <span id="cd-label">✨ almost there ✨</span>
+  </div>
+</div>
+
+<!-- LOVE MESSAGE -->
+<div id="message">
+  <span id="msg-main">I LOVE YOU, POORVI 💗</span>
+  <span id="msg-sub">always &amp; forever, no matter what ✨</span>
+  <span id="msg-sub2">you mean everything to me 🌷</span>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   TIMING (ms)
+   300     intro card appears
+   1800    floaty emojis start rising
+   3800    intro fades out
+   4600    countdown 3 (with ring)
+   5700    countdown 2
+   6800    countdown 1
+   7900    anim starts (particles chaos + matrix)
+   10900+  heart forms
+   15000+  love message
+═══════════════════════════════════════════════════════════ */
+
+const T_INTRO_SHOW = 300;
+const T_INTRO_HIDE = 3800;
+const T_FLOATY     = 1800;
+const T_CD3        = 4600;
+const T_CD2        = 5700;
+const T_CD1        = 6800;
+const T_ANIM       = 7900;
+const CIRC         = 276.46;
+
+const rand    = (a,b) => Math.random()*(b-a)+a;
+const randInt = (a,b) => Math.floor(rand(a,b));
+
+/* ─── SPARKLES around intro card ───────────────────────── */
+function addSparkles() {
+  const card = document.getElementById('intro-card');
+  const positions = [
+    {top:'-20%',left:'-10%',delay:'0s'},{top:'-15%',left:'110%',delay:'0.3s'},
+    {top:'110%',left:'-8%',delay:'0.6s'},{top:'115%',left:'108%',delay:'0.9s'},
+    {top:'50%',left:'-18%',delay:'0.15s'},{top:'50%',left:'118%',delay:'0.45s'},
+    {top:'-25%',left:'50%',delay:'0.75s'},{top:'120%',left:'50%',delay:'1s'}
+  ];
+  const emj = ['✨','💫','⭐','🌟','💖','🌸'];
+  positions.forEach((p,i) => {
+    const el = document.createElement('span');
+    el.className = 'sparkle';
+    el.textContent = emj[i % emj.length];
+    el.style.top = p.top; el.style.left = p.left;
+    el.style.animationDelay = p.delay;
+    el.style.animationDuration = (1.5 + Math.random()*0.8) + 's';
+    card.appendChild(el);
+  });
+}
+
+/* ─── FLOATY EMOJIS ─────────────────────────────────────── */
+let floatyInterval = null;
+function spawnOneFloaty() {
+  const emojis = ['💗','💖','💕','🌸','✨','💓','🌷','💞','🩷','🌺','⭐','💫','🎀'];
+  const el = document.createElement('span');
+  el.className = 'floaty';
+  el.textContent = emojis[randInt(0, emojis.length)];
+  el.style.left = rand(2, 95) + 'vw';
+  el.style.bottom = '-5vh';
+  el.style.animationDuration = rand(4, 8) + 's';
+  el.style.animationDelay = '0s';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 9000);
+}
+function startFloaty() {
+  spawnOneFloaty();
+  floatyInterval = setInterval(spawnOneFloaty, 400);
+}
+function stopFloaty() {
+  if (floatyInterval) { clearInterval(floatyInterval); floatyInterval = null; }
+}
+
+/* ─── COUNTDOWN RING ────────────────────────────────────── */
+const cdRing  = document.getElementById('cd-ring');
+const cdFill  = document.getElementById('cd-circle-fill');
+const cdNum   = document.getElementById('cd-num');
+let cdAnimId  = null;
+
+function showCountdown(num, onDone) {
+  cdRing.className = '';
+  void cdRing.offsetWidth;
+  cdNum.textContent = num;
+  cdFill.style.transition = 'none';
+  cdFill.style.strokeDashoffset = '0';
+  void cdFill.offsetWidth;
+  cdRing.classList.add('show');
+
+  // animate ring sweeping
+  requestAnimationFrame(() => {
+    cdFill.style.transition = `stroke-dashoffset ${0.95}s linear`;
+    cdFill.style.strokeDashoffset = CIRC;
+  });
+
+  if (onDone) setTimeout(() => {
+    cdRing.classList.remove('show');
+    cdRing.classList.add('hide');
+    setTimeout(onDone, 420);
+  }, 1000);
+}
+
+/* ─── STARS ──────────────────────────────────────────────── */
+const sCanvas = document.getElementById('stars-canvas');
+const sCtx    = sCanvas.getContext('2d');
+let stars = [];
+function initStars() {
+  sCanvas.width  = window.innerWidth;
+  sCanvas.height = window.innerHeight;
+  stars = Array.from({length:260}, () => ({
+    x: rand(0, sCanvas.width),
+    y: rand(0, sCanvas.height),
+    r: rand(0.3, 2.2),
+    speed: rand(0.001, 0.01),
+    phase: rand(0, Math.PI*2),
+    // subtle pink tint on some
+    pink: Math.random() < 0.2
+  }));
+}
+function drawStars(t) {
+  sCtx.clearRect(0,0,sCanvas.width,sCanvas.height);
+  stars.forEach(s => {
+    const a = 0.25 + 0.75*Math.abs(Math.sin(s.phase + t*s.speed));
+    sCtx.beginPath();
+    sCtx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    sCtx.fillStyle = s.pink
+      ? `rgba(255,180,210,${a})`
+      : `rgba(255,255,255,${a})`;
+    sCtx.fill();
+  });
+}
+
+/* ─── MATRIX RAIN ────────────────────────────────────────── */
+const mCanvas = document.getElementById('matrix-canvas');
+const mCtx    = mCanvas.getContext('2d');
+const CHARS   = 'LOVEYUPOORVI♥💗❤✿❀♡✦★彡JAAN BAABU'.split('');
+let drops = [];
+const COL = 18;
+let mOpacity = 0;
+function initMatrix() {
+  mCanvas.width  = window.innerWidth;
+  mCanvas.height = window.innerHeight;
+  drops = Array.from({length: Math.ceil(mCanvas.width/COL)}, () => rand(-mCanvas.height/COL, 0));
+}
+function drawMatrix() {
+  mCtx.clearRect(0,0,mCanvas.width,mCanvas.height);
+  if (mOpacity <= 0) return;
+  mCtx.font = `bold ${COL-2}px monospace`;
+  drops.forEach((y,i) => {
+    mCtx.fillStyle = `rgba(255,210,230,${mOpacity})`;
+    mCtx.fillText(CHARS[randInt(0,CHARS.length)], i*COL, y*COL);
+    for (let k=1; k<14; k++) {
+      const fade = (1-k/14)*0.5*mOpacity;
+      mCtx.fillStyle = `rgba(${230-k*8},20,${90+k*5},${fade})`;
+      mCtx.fillText(CHARS[randInt(0,CHARS.length)], i*COL, (y-k)*COL);
+    }
+    drops[i] = y > mCanvas.height/COL+14 ? rand(-18,-1) : y+0.3;
+  });
+}
+
+/* ─── PARTICLES + HEART ──────────────────────────────────── */
+const pCanvas = document.getElementById('particle-canvas');
+const pCtx    = pCanvas.getContext('2d');
+const N = 800;
+let particles=[], heartTargets=[];
+let phase='idle', phaseStart=0, heartBeat=1;
+
+const PALETTE = [
+  [255,105,180],[255,20,147],[220,20,120],
+  [255,182,193],[255,80,150],[200,30,100],
+  [255,150,200],[240,50,130],[230,180,230]
+];
+
+function heartPt(t, sc) {
+  return {
+    x:  sc*16*Math.pow(Math.sin(t),3),
+    y: -sc*(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))
+  };
+}
+
+function initParticles() {
+  pCanvas.width  = window.innerWidth;
+  pCanvas.height = window.innerHeight;
+  const cx=pCanvas.width/2, cy=pCanvas.height/2;
+  const sc = Math.min(pCanvas.width,pCanvas.height)/32;
+
+  heartTargets = Array.from({length:N},(_,i)=>{
+    const p = heartPt((i/N)*Math.PI*2, sc);
+    return {x:cx+p.x, y:cy+p.y};
+  });
+
+  particles = Array.from({length:N},(_,i)=>{
+    const [r,g,b] = PALETTE[i%PALETTE.length];
+    const a = rand(0,Math.PI*2);
+    const d = rand(30, Math.min(pCanvas.width,pCanvas.height)*0.52);
+    return {
+      x: cx+Math.cos(a)*d, y: cy+Math.sin(a)*d,
+      vx: rand(-4,4), vy: rand(-4,4),
+      r: rand(2,5.5), r0: rand(2,5.5),
+      color: `rgba(${r},${g},${b},`,
+      alpha: rand(0.5,1),
+      rot: rand(0,Math.PI*2), rotSpeed: rand(-0.06,0.06),
+      // each particle is either petal or mini circle
+      shape: Math.random() < 0.6 ? 'petal' : 'circle'
+    };
+  });
+}
+
+function easeOutCubic(t) { return 1-Math.pow(1-t,3); }
+
+function updateParticles(ae) {
+  const cx=pCanvas.width/2, cy=pCanvas.height/2, t=ae*0.001;
+  if      (ae < 3000) phase = 'chaos';
+  else if (ae < 8000) { phase='forming'; if(!phaseStart) phaseStart=ae; }
+  else                 phase = 'beating';
+
+  heartBeat = phase==='beating' ? 1 + 0.09*Math.sin(t*5.5) : 1;
+
+  particles.forEach((p,i) => {
+    if (phase==='chaos') {
+      p.vx += rand(-0.2,0.2); p.vy += rand(-0.2,0.2);
+      p.vx += (cx-p.x)*0.0004; p.vy += (cy-p.y)*0.0004;
+      p.vx *= 0.96; p.vy *= 0.96;
+      p.x += p.vx; p.y += p.vy;
+      p.rot += p.rotSpeed;
+    } else if (phase==='forming') {
+      const prog = Math.min((ae-phaseStart)/5000, 1);
+      const ease = easeOutCubic(prog);
+      const sc   = Math.min(pCanvas.width,pCanvas.height)/32;
+      const hp   = heartPt((i/N)*Math.PI*2, sc);
+      p.x += (cx+hp.x - p.x)*ease*0.065;
+      p.y += (cy+hp.y - p.y)*ease*0.065;
+      p.rot += p.rotSpeed*(1-ease*0.9);
+      p.alpha = 0.55 + 0.45*ease;
+    } else {
+      const sc = Math.min(pCanvas.width,pCanvas.height)/32*heartBeat;
+      const hp = heartPt((i/N)*Math.PI*2, sc);
+      p.x += (cx+hp.x - p.x)*0.11;
+      p.y += (cy+hp.y - p.y)*0.11;
+      p.alpha = 0.7 + 0.3*Math.sin(t*5.5 + i*0.04);
+    }
+    p.r = p.r0*(phase==='beating' ? heartBeat : 1);
+  });
+}
+
+function drawParticle(p) {
+  pCtx.save();
+  pCtx.translate(p.x, p.y);
+  pCtx.rotate(p.rot);
+  if (p.shape === 'petal') {
+    pCtx.beginPath();
+    pCtx.moveTo(0, -p.r);
+    pCtx.bezierCurveTo(p.r*0.9,-p.r*0.9, p.r*0.9,p.r*0.9, 0,p.r);
+    pCtx.bezierCurveTo(-p.r*0.9,p.r*0.9, -p.r*0.9,-p.r*0.9, 0,-p.r);
+  } else {
+    pCtx.beginPath();
+    pCtx.arc(0, 0, p.r*0.7, 0, Math.PI*2);
+  }
+  pCtx.fillStyle = p.color + p.alpha + ')';
+  pCtx.shadowColor = p.color + '0.8)';
+  pCtx.shadowBlur  = p.r*2.5;
+  pCtx.fill();
+  pCtx.restore();
+}
+
+function drawParticles() {
+  pCtx.clearRect(0,0,pCanvas.width,pCanvas.height);
+  if (phase==='beating' || phase==='forming') {
+    const cx=pCanvas.width/2, cy=pCanvas.height/2;
+    const gs = Math.min(pCanvas.width,pCanvas.height)/32 * heartBeat;
+    const g  = pCtx.createRadialGradient(cx, cy-gs*2, gs*0.5, cx, cy, gs*18);
+    g.addColorStop(0,  'rgba(255,30,110,0.22)');
+    g.addColorStop(0.4,'rgba(200,0,90,0.10)');
+    g.addColorStop(1,  'rgba(0,0,0,0)');
+    pCtx.fillStyle = g;
+    pCtx.fillRect(0,0,pCanvas.width,pCanvas.height);
+  }
+  particles.forEach(drawParticle);
+}
+
+/* ─── HEART BURST (when message appears) ───────────────── */
+function burstHearts() {
+  const cx = window.innerWidth/2;
+  const cy = window.innerHeight/2;
+  const emj = ['💗','💖','💕','💓','🩷'];
+  for (let i=0; i<16; i++) {
+    const el = document.createElement('span');
+    el.className = 'heart-pop';
+    el.textContent = emj[i%emj.length];
+    const angle = (i/16)*Math.PI*2;
+    const dist  = rand(80,200);
+    el.style.left = cx + 'px';
+    el.style.top  = cy + 'px';
+    el.style.setProperty('--dx', Math.cos(angle)*dist + 'px');
+    el.style.setProperty('--dy', Math.sin(angle)*dist + 'px');
+    el.style.animationDelay = rand(0,0.4)+'s';
+    el.style.animationDuration = rand(0.9,1.4)+'s';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 2000);
+  }
+}
+
+/* ─── MAIN LOOP ──────────────────────────────────────────── */
+const introCard = document.getElementById('intro-card');
+const msgEl     = document.getElementById('message');
+
+let T0=null, animT0=null;
+let cdState=0, floatyStarted=false, sparklesAdded=false;
+let msgShown=false, burstDone=false;
+
+function loop(ts) {
+  if (!T0) T0 = ts;
+  const e = ts - T0;
+
+  // Sparkles
+  if (!sparklesAdded && e >= T_INTRO_SHOW-100) { addSparkles(); sparklesAdded=true; }
+
+  // Intro card
+  if (e >= T_INTRO_SHOW && !introCard.classList.contains('show') && !introCard.classList.contains('hide'))
+    introCard.classList.add('show');
+  if (!floatyStarted && e >= T_FLOATY) { startFloaty(); floatyStarted=true; }
+  if (e >= T_INTRO_HIDE && !introCard.classList.contains('hide')) {
+    introCard.classList.add('hide');
+  }
+
+  // Countdown
+  if (e >= T_CD3 && cdState===0) {
+    stopFloaty();
+    showCountdown(3, () => {
+      showCountdown(2, () => {
+        showCountdown(1, () => { cdState=4; });
+        cdState=3;
+      });
+      cdState=2;
+    });
+    cdState=1;
+  }
+
+  // Stars always
+  drawStars(e * 0.001);
+
+  // Main animation
+  if (e >= T_ANIM) {
+    if (!animT0) animT0 = ts;
+    const ae = ts - animT0;
+
+    if (ae > 200)  mOpacity = Math.min((ae-200)/2200, 0.5);
+    if (ae > 5000) mOpacity = Math.max(0, 0.5 - (ae-5000)/2000);
+
+    drawMatrix();
+    updateParticles(ae);
+    drawParticles();
+
+    if (ae > 8000 && !msgShown) {
+      msgShown = true;
+      msgEl.classList.add('visible');
+    }
+    if (ae > 8500 && !burstDone) {
+      burstDone = true;
+      burstHearts();
+      // repeat burst every 4s
+      setInterval(burstHearts, 5000);
+    }
+  }
+
+  requestAnimationFrame(loop);
+}
+
+/* ─── INIT ───────────────────────────────────────────────── */
+function init() {
+  initStars(); initMatrix(); initParticles();
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener('resize', () => {
+  initStars(); initMatrix(); initParticles();
+  phaseStart=0; animT0=null; msgShown=false; burstDone=false;
+  msgEl.classList.remove('visible');
+});
+
+init();
+</script>
+</body>
+</html>
